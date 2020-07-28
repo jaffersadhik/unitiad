@@ -1,0 +1,152 @@
+version: '2'
+services:
+  http:
+    image: "winnovature/unitiahttpd:lion" 
+    ports:
+      - "9101:8080"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+    depends_on:
+      - "router"
+    links:
+      - elk
+  smpp:
+    image: "winnovature/unitiasmpp:lion"
+    ports:
+      - "2775:2775"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+    depends_on:
+      - "router"
+    links:
+      - elk
+  dnreceiver:
+    image: "winnovature/unitiadnreceiver:lion"
+    ports:
+      - "9301:8080"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+    depends_on:
+      - "dbpersist"
+    links:
+      - elk
+  dngen:
+    image: "winnovature/unitiadngen:lion"
+    ports:
+      - "9201:8080"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+    depends_on:
+      - "dngencore"
+    links:
+      - elk
+  dngencore:
+    image: "winnovature/unitiadngencore:lion"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+    depends_on:
+      - "dnreceiver"
+    links:
+      - elk
+  dbpersist:
+    image: "winnovature/unitiadbpersist:lion"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+    depends_on:
+      - "dbtoredis"
+    links:
+      - elk
+  dbtoredis:
+    image: "winnovature/unitiadbtoredis:lion"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+    depends_on:
+      - "tablereader"
+    links:
+      - elk
+  tablereader:
+    image: "winnovature/unitiatablereader:lion"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+    depends_on:
+      - "dnhttppost"
+    links:
+      - elk
+  dnhttppost:
+    image: "winnovature/unitiadnhttppost:lion"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+    depends_on:
+      - "redis"
+    links:
+      - elk
+  router:
+    image: "winnovature/unitiacore:lion"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+    depends_on:
+      - "dngen"
+    links:
+      - elk
+  redis:
+    image: "redis:6.0-alpine3.12"
+    links:
+      - elk
+  monitor:
+    image: "portainer/portainer"
+    ports:
+      - "7001:9000"
+    links:
+      - elk
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/portainer:/data
+  app:
+    build : ./app
+    volumes:
+      - ./app/:/usr/src/app
+      - /usr/src/app/node_modules/ # make node_module empty in container
+    command: npm start
+    ports:
+      - "3000:3000"
+  nginx:
+    build: ./nginx
+    volumes:
+      - ./nginx/config:/etc/nginx/conf.d
+      - ./nginx/log:/var/log/nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    links:
+      - app:app
+    depends_on:
+      - app
+  filebeat:
+    build: ./filebeat
+    entrypoint: "filebeat -e -strict.perms=false"
+    volumes:
+      - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./nginx/log:/var/log/nginx
+    depends_on:
+      - app
+      - nginx
+      - elk
+    links:
+      - elk
+
+  elk:
+    image: sebp/elk
+    ports:
+      - "5601:5601"
+      - "9200:9200"
+      - "5044:5044"   
