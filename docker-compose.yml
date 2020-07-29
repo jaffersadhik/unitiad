@@ -100,6 +100,8 @@ services:
       - elk
   redis:
     image: "redis:6.0-alpine3.12"
+    volumes:
+      - /home/unitia/data/:/data
     links:
       - elk
   monitor:
