@@ -1,4 +1,4 @@
-version: '3'
+version: '2'
 services:
   http1:
     image: "winnovature/unitia:lion" 
@@ -8,7 +8,7 @@ services:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
     depends_on:
-      - "router1"
+      - "router"
     environment:
       - module=http
       - TZ=Asia/Kolkata  
@@ -20,7 +20,7 @@ services:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
     depends_on:
-      - "router1"
+      - "router"
     environment:
       - module=http
       - TZ=Asia/Kolkata
@@ -32,7 +32,7 @@ services:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
     depends_on:
-      - "router1"
+      - "router"
     environment:
       - module=smpp
       - TZ=Asia/Kolkata
@@ -132,7 +132,7 @@ services:
     depends_on:
       - "dbtoredis"
     environment:
-      - module=dnpostdb
+      - module=dbpostdb
       - TZ=Asia/Kolkata
   dbtoredis:
     image: "winnovature/unitia:lion"
@@ -164,31 +164,15 @@ services:
     environment:
       - module=dnhttppost
       - TZ=Asia/Kolkata
-  router1:
+  router:
     image: "winnovature/unitia:lion"
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
     depends_on:
       - "dngen1"
-      - "redisqueue1"
-      - "kannel1"
     environment:
       - module=router
-      - redis=redisqueue1 
-      - TZ=Asia/Kolkata
-  router2:
-    image: "winnovature/unitia:lion"
-    volumes:
-      - /etc/hosts:/etc/hosts
-      - /home/unitia/:/unitia
-    depends_on:
-      - "dngen1"
-      - "redisqueue2"
-      - "kannel1"
-    environment:
-      - module=router
-      - redis=redisqueue2
       - TZ=Asia/Kolkata
   redisqueue1:
     image: "redis:6.0-alpine3.12"
@@ -202,49 +186,34 @@ services:
       - "2002:6379"
     volumes:
       - /home/unitia/redisqueue2/data/:/data
-  kannel1:
-    image: bulktrade/kannel:r5159
+  redisqueue3:
+    image: "redis:6.0-alpine3.12"
     ports:
-      - "13013:13013" # smsbox
-      - "13000:13000" # kannel admin
-    depends_on:
-      - kannelconfig
+      - "2003:6379"
     volumes:
-      - "/home/unitia/spool/kannel1:/var/spool/kannel"
-      - "/home/unitia/logs/kannel:/var/log/kannel"
-      - "/etc/hosts:/etc/hosts"
-      - "/home/unitia/kannel:/etc/kannel"
-      - "./opensmppbox.conf:/etc/kannel/opensmppbox.conf"
-  kannel2:
-    image: bulktrade/kannel:r5159
+      - /home/unitia/redisqueue3/data/:/data
+  redisqueue4:
+    image: "redis:6.0-alpine3.12"
     ports:
-      - "13023:13013" # smsbox
-      - "13020:13000" # kannel admin
-    depends_on:
-      - kannelconfig
+      - "2004:6379"
     volumes:
-      - "/home/unitia/spool/kannel2:/var/spool/kannel"
-      - "/home/unitia/logs/kannel:/var/log/kannel"
-      - "/etc/hosts:/etc/hosts"
-      - "/home/unitia/kannel:/etc/kannel"
-      - "./opensmppbox.conf:/etc/kannel/opensmppbox.conf"
-  unitiadb:
-    image: "mariadb"
+      - /home/unitia/redisqueue4/data/:/data
+  redisqueue5:
+    image: "redis:6.0-alpine3.12"
     ports:
-      -  "3306:3306"
+      - "2005:6379"
     volumes:
-      - "/home/unitia/mysql:/var/lib/mysql"
-    environment:
-      - MYSQL_ROOT_PASSWORD=kannel 
-      - TZ=Asia/Kolkata
-  kannelconfig:
-    image: "winnovature/unitia:lion"
+      - /home/unitia/redisqueue5/data/:/data
+  redisqueue6:
+    image: "redis:6.0-alpine3.12"
+    ports:
+      - "2006:6379"
     volumes:
-      - /etc/hosts:/etc/hosts
-      - /home/unitia/:/unitia
-    depends_on:
-      - "unitiadb"
-    environment:
-      - module=kannelconfig
-      - TZ=Asia/Kolkata
-
+      - /home/unitia/redisqueue6/data/:/data
+  monitor:
+    image: "portainer/portainer"
+    ports:
+      - "5001:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/portainer:/data

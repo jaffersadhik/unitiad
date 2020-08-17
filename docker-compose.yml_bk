@@ -1,0 +1,163 @@
+version: '2'
+services:
+  http:
+    image: "winnovature/unitia:lion" 
+    ports:
+      - "9101:8080"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+    depends_on:
+      - "router"
+    links:
+      - elk
+    environment:
+      - module=http
+      - TZ=Asia/Kolkata  
+  smpp:
+    image: "winnovature/unitia:lion"
+    ports:
+      - "2775:8080"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+    depends_on:
+      - "router"
+    links:
+      - elk
+    environment:
+      - module=smpp
+      - TZ=Asia/Kolkata
+  dnreceiver:
+    image: "winnovature/unitia:lion"
+    ports:
+      - "9301:8080"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+    depends_on:
+      - "dbpersist"
+    links:
+      - elk
+    environment:
+      - module=dnreceiver
+      - TZ=Asia/Kolkata
+  dngen:
+    image: "winnovature/unitia:lion"
+    ports:
+      - "9201:8080"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+    depends_on:
+      - "dngencore"
+    links:
+      - elk
+    environment:
+      - module=dngen
+      - TZ=Asia/Kolkata
+  dngencore:
+    image: "winnovature/unitia:lion"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+    depends_on:
+      - "dnreceiver"
+    links:
+      - elk
+    environment:
+      - module=dngencore
+      - TZ=Asia/Kolkata
+  dbpersist:
+    image: "winnovature/unitia:lion"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+    depends_on:
+      - "dbtoredis"
+    links:
+      - elk
+    environment:
+      - module=dbpersist
+      - TZ=Asia/Kolkata
+  dbtoredis:
+    image: "winnovature/unitia:lion"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+    depends_on:
+      - "tablereader"
+    links:
+      - elk
+    environment:
+      - module=dbtoredis
+      - TZ=Asia/Kolkata
+  tablereader:
+    image: "winnovature/unitia:lion"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+    depends_on:
+      - "dnhttppost"
+    links:
+      - elk
+    environment:
+      - module=tablereader
+      - TZ=Asia/Kolkata
+  dnhttppost:
+    image: "winnovature/unitia:lion"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+    depends_on:
+      - "redis"
+    links:
+      - elk
+    environment:
+      - module=dnhttppost
+      - TZ=Asia/Kolkata
+  router:
+    image: "winnovature/unitia:lion"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+    depends_on:
+      - "dngen"
+    links:
+      - elk
+    environment:
+      - module=router
+      - TZ=Asia/Kolkata
+  redis:
+    image: "redis:6.0-alpine3.12"
+    volumes:
+      - /home/unitia/data/:/data
+    links:
+      - elk
+  monitor:
+    image: "portainer/portainer"
+    ports:
+      - "7001:9000"
+    links:
+      - elk
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/portainer:/data
+  filebeat:
+    build: ./filebeat
+    entrypoint: "filebeat -e -strict.perms=false"
+    volumes:
+      - /home/unitiad/filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - /home/unitia/logs:/home/unitia/logs
+      - /var/lib/docker/containers:/var/lib/docker/containers 
+    depends_on:
+      - elk
+    links:
+      - elk
+
+  elk:
+    image: sebp/elk
+    ports:
+      - "5601:5601"
+      - "9200:9200"
+      - "5044:5044"   
