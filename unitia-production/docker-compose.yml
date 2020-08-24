@@ -9,6 +9,7 @@ services:
       - /home/unitia/:/unitia
     depends_on:
       - "router1"
+      - "router2"
     environment:
       - module=http
       - TZ=Asia/Kolkata  
@@ -21,6 +22,7 @@ services:
       - /home/unitia/:/unitia
     depends_on:
       - "router1"
+      - "router2"
     environment:
       - module=http
       - TZ=Asia/Kolkata
@@ -33,6 +35,7 @@ services:
       - /home/unitia/:/unitia
     depends_on:
       - "router1"
+      - "router2"
     environment:
       - module=smpp
       - TZ=Asia/Kolkata
@@ -173,6 +176,7 @@ services:
       - "dngen1"
       - "redisqueue1"
       - "kannel1"
+      - "kannel2"
     environment:
       - module=router
       - redis=redisqueue1 
@@ -186,6 +190,7 @@ services:
       - "dngen1"
       - "redisqueue2"
       - "kannel1"
+      - "kannel2" 
     environment:
       - module=router
       - redis=redisqueue2
@@ -195,13 +200,13 @@ services:
     ports:
       - "2001:6379" 
     volumes:
-      - /home/unitia/redisqueue1/data/:/data
+      - /home/unitia/production/redisqueue1/data/:/data
   redisqueue2:
     image: "redis:6.0-alpine3.12"
     ports:
       - "2002:6379"
     volumes:
-      - /home/unitia/redisqueue2/data/:/data
+      - /home/unitia/production/redisqueue2/data/:/data
   kannel1:
     image: bulktrade/kannel:r5159
     ports:
@@ -210,10 +215,10 @@ services:
     depends_on:
       - kannelconfig
     volumes:
-      - "/home/unitia/spool/kannel1:/var/spool/kannel"
-      - "/home/unitia/logs/kannel:/var/log/kannel"
+      - "/home/unitia/production/spool/kannel1:/var/spool/kannel"
+      - "/home/unitia/production/logs/kannel:/var/log/kannel"
       - "/etc/hosts:/etc/hosts"
-      - "/home/unitia/kannel:/etc/kannel"
+      - "/home/unitia/production/kannel:/etc/kannel"
       - "./opensmppbox.conf:/etc/kannel/opensmppbox.conf"
   kannel2:
     image: bulktrade/kannel:r5159
@@ -223,17 +228,17 @@ services:
     depends_on:
       - kannelconfig
     volumes:
-      - "/home/unitia/spool/kannel2:/var/spool/kannel"
-      - "/home/unitia/logs/kannel:/var/log/kannel"
+      - "/home/unitia/production/spool/kannel2:/var/spool/kannel"
+      - "/home/unitia/production/logs/kannel:/var/log/kannel"
       - "/etc/hosts:/etc/hosts"
-      - "/home/unitia/kannel:/etc/kannel"
+      - "/home/unitia/production/kannel:/etc/kannel"
       - "./opensmppbox.conf:/etc/kannel/opensmppbox.conf"
   unitiadb:
     image: "mariadb"
     ports:
-      -  "3306:3306"
+      -  "7005:3306"
     volumes:
-      - "/home/unitia/mysql:/var/lib/mysql"
+      - "/home/unitia/production/mysql:/var/lib/mysql"
     environment:
       - MYSQL_ROOT_PASSWORD=kannel 
       - TZ=Asia/Kolkata
