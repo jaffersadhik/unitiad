@@ -1,7 +1,7 @@
 version: '3'
 services:
   http1:
-    image: "winnovature/unitia:lion" 
+    image: "winnovature/unitia:production" 
     ports:
       - "8001:8080"
     volumes:
@@ -14,7 +14,7 @@ services:
       - module=http
       - TZ=Asia/Kolkata  
   http2:
-    image: "winnovature/unitia:lion"
+    image: "winnovature/unitia:production"
     ports:
       - "8002:8080"
     volumes:
@@ -27,7 +27,7 @@ services:
       - module=http
       - TZ=Asia/Kolkata
   smpp:
-    image: "winnovature/unitia:lion"
+    image: "winnovature/unitia:production"
     ports:
       - "2775:8080"
     volumes:
@@ -40,7 +40,7 @@ services:
       - module=smpp
       - TZ=Asia/Kolkata
   dnreceiver1:
-    image: "winnovature/unitia:lion"
+    image: "winnovature/unitia:production"
     ports:
       - "6001:8080"
     volumes:
@@ -52,7 +52,7 @@ services:
       - module=dnreceiver
       - TZ=Asia/Kolkata
   dnreceiver2:
-    image: "winnovature/unitia:lion"
+    image: "winnovature/unitia:production"
     ports:
       - "6002:8080"
     volumes:
@@ -64,7 +64,7 @@ services:
       - module=dnreceiver
       - TZ=Asia/Kolkata
   dngen1:
-    image: "winnovature/unitia:lion"
+    image: "winnovature/unitia:production"
     ports:
       - "7001:8080"
     volumes:
@@ -76,7 +76,7 @@ services:
       - module=dngen
       - TZ=Asia/Kolkata
   dngen2:
-    image: "winnovature/unitia:lion"
+    image: "winnovature/unitia:production"
     ports:
       - "7002:8080"
     volumes:
@@ -88,7 +88,7 @@ services:
       - module=dngen
       - TZ=Asia/Kolkata
   dngencore:
-    image: "winnovature/unitia:lion"
+    image: "winnovature/unitia:production"
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
@@ -98,7 +98,7 @@ services:
       - module=dngencore
       - TZ=Asia/Kolkata
   submission:
-    image: "winnovature/unitia:lion"
+    image: "winnovature/unitia:production"
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
@@ -108,7 +108,7 @@ services:
       - module=submission
       - TZ=Asia/Kolkata
   delivery:
-    image: "winnovature/unitia:lion"
+    image: "winnovature/unitia:production"
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
@@ -118,7 +118,7 @@ services:
       - module=delivery
       - TZ=Asia/Kolkata
   scheduledb:
-    image: "winnovature/unitia:lion"
+    image: "winnovature/unitia:production"
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
@@ -128,7 +128,7 @@ services:
       - module=scheduledb
       - TZ=Asia/Kolkata
   dnpostdb:
-    image: "winnovature/unitia:lion"
+    image: "winnovature/unitia:production"
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
@@ -138,7 +138,7 @@ services:
       - module=dnpostdb
       - TZ=Asia/Kolkata
   dbtoredis:
-    image: "winnovature/unitia:lion"
+    image: "winnovature/unitia:production"
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
@@ -148,7 +148,7 @@ services:
       - module=dbtoredis
       - TZ=Asia/Kolkata
   tablereader:
-    image: "winnovature/unitia:lion"
+    image: "winnovature/unitia:production"
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
@@ -158,7 +158,7 @@ services:
       - module=tablereader
       - TZ=Asia/Kolkata
   dnhttppost:
-    image: "winnovature/unitia:lion"
+    image: "winnovature/unitia:production"
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
@@ -168,7 +168,7 @@ services:
       - module=dnhttppost
       - TZ=Asia/Kolkata
   router1:
-    image: "winnovature/unitia:lion"
+    image: "winnovature/unitia:production"
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
@@ -182,7 +182,7 @@ services:
       - redis=redisqueue1 
       - TZ=Asia/Kolkata
   router2:
-    image: "winnovature/unitia:lion"
+    image: "winnovature/unitia:production"
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
@@ -243,7 +243,7 @@ services:
       - MYSQL_ROOT_PASSWORD=kannel 
       - TZ=Asia/Kolkata
   kannelconfig:
-    image: "winnovature/unitia:lion"
+    image: "winnovature/unitia:production"
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
