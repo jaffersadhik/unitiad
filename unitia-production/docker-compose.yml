@@ -216,7 +216,7 @@ services:
       - kannelconfig
     volumes:
       - "/home/unitia/production/spool/kannel1:/var/spool/kannel"
-      - "/home/unitia/production/logs/kannel:/var/log/kannel"
+      - "/logs/kannel1:/var/log/kannel"
       - "/etc/hosts:/etc/hosts"
       - "/home/unitia/production/kannel:/etc/kannel"
       - "./opensmppbox.conf:/etc/kannel/opensmppbox.conf"
@@ -232,7 +232,7 @@ services:
       - kannelconfig
     volumes:
       - "/home/unitia/production/spool/kannel2:/var/spool/kannel"
-      - "/home/unitia/production/logs/kannel:/var/log/kannel"
+      - "/logs/kannel2:/var/log/kannel"
       - "/etc/hosts:/etc/hosts"
       - "/home/unitia/production/kannel:/etc/kannel"
       - "./opensmppbox.conf:/etc/kannel/opensmppbox.conf"
@@ -253,6 +253,7 @@ services:
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
+      - /logs:/logs
     depends_on:
       - "unitiadb"
     environment:
