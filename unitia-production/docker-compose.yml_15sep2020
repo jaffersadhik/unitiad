@@ -244,3 +244,12 @@ services:
     depends_on:
       - "http1"
       - "http2"
+  hadoop:
+    image: "sequenceiq/hadoop-docker:2.7.1"
+    volumes:
+      - "/home/unitia/production/hadoop:/tmp"
+      - "/logs/hadoop:/usr/local/hadoop/logs"
+  hue:
+    image: "gethue/hue:latest"
+    ports:
+      - "8888:8888" 
