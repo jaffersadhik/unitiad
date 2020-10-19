@@ -1,5 +1,14 @@
 version: '3'
 services:
+  logs:
+    image: "winnovature/unitia:production"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+      - /logs:/logs
+    environment:
+      - module=logs
+      - TZ=Asia/Kolkata  
   http1:
     image: "winnovature/unitia:production" 
     ports:
@@ -63,35 +72,11 @@ services:
     environment:
       - module=dnreceiver
       - TZ=Asia/Kolkata
-  dngen1:
-    image: "winnovature/unitia:production"
-    ports:
-      - "7001:8080"
-    volumes:
-      - /etc/hosts:/etc/hosts
-      - /home/unitia/:/unitia
-    depends_on:
-      - "dngencore"
-    environment:
-      - module=dngen
-      - TZ=Asia/Kolkata
-  dngencore:
-    image: "winnovature/unitia:production"
-    volumes:
-      - /etc/hosts:/etc/hosts
-      - /home/unitia/:/unitia
-    depends_on:
-      - "dn"
-    environment:
-      - module=dngencore
-      - TZ=Asia/Kolkata
   submission:
     image: "winnovature/unitia:production"
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
-    depends_on:
-      - "delivery"
     environment:
       - module=submission
       - TZ=Asia/Kolkata
@@ -104,6 +89,17 @@ services:
       - "scheduledb"
     environment:
       - module=delivery
+      - TZ=Asia/Kolkata
+  dnsql:
+    image: "winnovature/unitia:production"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+    depends_on:
+      - "unitiadb"
+      - "kannel1"
+    environment:
+      - module=dnsql
       - TZ=Asia/Kolkata
   scheduledb:
     image: "winnovature/unitia:production"
@@ -161,7 +157,6 @@ services:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
     depends_on:
-      - "dngen1"
       - "redisqueue1"
       - "kannel1"
     environment:
@@ -174,7 +169,6 @@ services:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
     depends_on:
-      - "dngen1"
       - "redisqueue2"
       - "kannel1"
     environment:
@@ -194,13 +188,13 @@ services:
     volumes:
       - /home/unitia/production/redisqueue2/data/:/data
   kannel1:
-    image: kannel:latest
+    image: "winnovature/kannel:sqldn"
     ports:
       - "13013:13013" # smsbox
       - "13000:13000" # kannel admin
     depends_on:
       - kannelconfig
-      - dn 
+      - dn
     volumes:
       - "/home/unitia/production/spool/kannel1:/var/spool/kannel"
       - "/logs/kannel1:/var/log/kannel"
@@ -211,11 +205,12 @@ services:
       - "LANG=en_US.UTF-8"
       - "LC_ALL=en_US.UTF-8"
   unitiadb:
-    image: "mariadb"
+    image: "winnovature/mariadb:production"
     ports:
       -  "7005:3306"
     volumes:
       - "/home/unitia/production/mysql:/var/lib/mysql"
+      - "/home/unitia/production/mysql/my.cnf:/etc/mysql/my.cnf"
     environment:
       - MYSQL_ROOT_PASSWORD=kannel 
       - TZ=Asia/Kolkata
