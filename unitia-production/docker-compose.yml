@@ -98,6 +98,10 @@ services:
     depends_on:
       - "unitiadb"
       - "kannel1"
+      - "pinnaclkanneldb"
+      - "tagkanneldb"
+      - "tagtele"
+      - "pinnacle"
     environment:
       - module=dnsql
       - TZ=Asia/Kolkata
@@ -159,6 +163,8 @@ services:
     depends_on:
       - "redisqueue1"
       - "kannel1"
+      - "tagtele"
+      - "pinnacle"
     environment:
       - module=router
       - redis=redisqueue1 
@@ -171,6 +177,8 @@ services:
     depends_on:
       - "redisqueue2"
       - "kannel1"
+      - "tagtele"
+      - "pinnacle"
     environment:
       - module=router
       - redis=redisqueue2
@@ -204,6 +212,40 @@ services:
     environment:
       - "LANG=en_US.UTF-8"
       - "LC_ALL=en_US.UTF-8"
+  pinnacle:
+    image: "winnovature/kannel:sqldn"
+    ports:
+      - "13113:13013" # smsbox
+      - "13100:13000" # kannel admin
+    depends_on:
+      - kannelconfig
+      - dn
+    volumes:
+      - "/home/unitia/production/spool/pinnacle:/var/spool/kannel"
+      - "/logs/pinnacle:/var/log/kannel"
+      - "/etc/hosts:/etc/hosts"
+      - "/home/unitia/production/pinnacle:/etc/kannel"
+      - "./opensmppbox.conf:/etc/kannel/opensmppbox.conf"
+    environment:
+      - "LANG=en_US.UTF-8"
+      - "LC_ALL=en_US.UTF-8"
+  tagtele:
+    image: "winnovature/kannel:sqldn"
+    ports:
+      - "13213:13013" # smsbox
+      - "13200:13000" # kannel admin
+    depends_on:
+      - kannelconfig
+      - dn
+    volumes:
+      - "/home/unitia/production/spool/tagtele:/var/spool/kannel"
+      - "/logs/tagtele:/var/log/kannel"
+      - "/etc/hosts:/etc/hosts"
+      - "/home/unitia/production/tagtele:/etc/kannel"
+      - "./opensmppbox.conf:/etc/kannel/opensmppbox.conf"
+    environment:
+      - "LANG=en_US.UTF-8"
+      - "LC_ALL=en_US.UTF-8"
   unitiadb:
     image: "winnovature/mariadb:production"
     ports:
@@ -213,6 +255,26 @@ services:
       - "/home/unitia/production/mysql/my.cnf:/etc/mysql/my.cnf"
     environment:
       - MYSQL_ROOT_PASSWORD=kannel 
+      - TZ=Asia/Kolkata
+  pinnaclkanneldb:
+    image: "winnovature/mariadb:production"
+    ports:
+      -  "7006:3306"
+    volumes:
+      - "/home/unitia/production/pinnaclkanneldb:/var/lib/mysql"
+      - "/home/unitia/production/pinnaclkanneldb/my.cnf:/etc/mysql/my.cnf"
+    environment:
+      - MYSQL_ROOT_PASSWORD=kannel
+      - TZ=Asia/Kolkata
+  tagkanneldb:
+    image: "winnovature/mariadb:production"
+    ports:
+      -  "7007:3306"
+    volumes:
+      - "/home/unitia/production/tagkanneldb:/var/lib/mysql"
+      - "/home/unitia/production/tagkanneldb/my.cnf:/etc/mysql/my.cnf"
+    environment:
+      - MYSQL_ROOT_PASSWORD=kannel
       - TZ=Asia/Kolkata
   kannelconfig:
     image: "winnovature/unitia:production"
