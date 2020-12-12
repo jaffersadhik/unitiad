@@ -1,5 +1,10 @@
 version: '3'
 services:
+  demo:
+    image:  "winnovature/unitia:production"
+    environment:
+      - module=demo
+      - TZ=Asia/Kolkata
   logs:
     image: "winnovature/unitia:production"
     volumes:
@@ -158,6 +163,7 @@ services:
   router1:
     image: "winnovature/unitia:production"
     volumes:
+      - /logs:/logs
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
     depends_on:
@@ -172,6 +178,7 @@ services:
   router2:
     image: "winnovature/unitia:production"
     volumes:
+      - /logs:/logs
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
     depends_on:
@@ -301,3 +308,36 @@ services:
     depends_on:
       - "http1"
       - "http2"
+  optin:
+    image: "winnovature/unitia:production"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+      - /logs:/logs
+    depends_on:
+      - "redisqueue1"
+    environment:
+      - module=optin
+      - TZ=Asia/Kolkata
+  optout:
+    image: "winnovature/unitia:production"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+      - /logs:/logs
+    depends_on:
+      - "redisqueue1"
+    environment:
+      - module=optout
+      - TZ=Asia/Kolkata
+  duplicate:
+    image: "winnovature/unitia:production"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+      - /logs:/logs
+    depends_on:
+      - "redisqueue1"
+    environment:
+      - module=duplicate
+      - TZ=Asia/Kolkata
