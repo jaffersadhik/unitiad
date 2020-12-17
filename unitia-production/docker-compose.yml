@@ -5,15 +5,6 @@ services:
     environment:
       - module=demo
       - TZ=Asia/Kolkata
-  logs:
-    image: "winnovature/unitia:production"
-    volumes:
-      - /etc/hosts:/etc/hosts
-      - /home/unitia/:/unitia
-      - /logs:/logs
-    environment:
-      - module=logs
-      - TZ=Asia/Kolkata  
   http1:
     image: "winnovature/unitia:production" 
     ports:
@@ -21,6 +12,7 @@ services:
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
+      - /logs:/logs 
     depends_on:
       - "router1"
       - "router2"
@@ -34,6 +26,7 @@ services:
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
+      - /logs:/logs
     depends_on:
       - "router1"
       - "router2"
@@ -47,11 +40,21 @@ services:
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
+      - /logs:/logs
     depends_on:
       - "router1"
       - "router2"
     environment:
       - module=smpp
+      - TZ=Asia/Kolkata
+  simulator1:
+    image: "winnovature/unitia:production"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+      - /logs:/logs
+    environment:
+      - module=simulator
       - TZ=Asia/Kolkata
   dnreceiver1:
     image: "winnovature/unitia:production"
@@ -60,6 +63,7 @@ services:
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
+      - /logs:/logs
     depends_on:
       - "submission"
     environment:
@@ -72,6 +76,7 @@ services:
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
+      - /logs:/logs
     depends_on:
       - "submission"
     environment:
@@ -82,6 +87,7 @@ services:
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
+      - /logs:/logs
     environment:
       - module=submission
       - TZ=Asia/Kolkata
@@ -90,6 +96,7 @@ services:
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
+      - /logs:/logs
     depends_on:
       - "scheduledb"
     environment:
@@ -100,6 +107,7 @@ services:
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
+      - /logs:/logs
     depends_on:
       - "unitiadb"
       - "kannel1"
@@ -115,6 +123,7 @@ services:
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
+      - /logs:/logs
     depends_on:
       - "dnpostdb" 
     environment:
@@ -125,6 +134,7 @@ services:
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
+      - /logs:/logs
     depends_on:
       - "dbtoredis"
     environment:
@@ -135,6 +145,7 @@ services:
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
+      - /logs:/logs
     depends_on:
       - "tablereader"
     environment:
@@ -145,6 +156,7 @@ services:
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
+      - /logs:/logs
     depends_on:
       - "dnhttppost"
     environment:
@@ -155,6 +167,7 @@ services:
     volumes:
       - /etc/hosts:/etc/hosts
       - /home/unitia/:/unitia
+      - /logs:/logs 
     depends_on:
       - "redisqueue1"
     environment:
@@ -263,6 +276,16 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=kannel 
       - TZ=Asia/Kolkata
+  kannel1db:
+    image: "winnovature/mariadb:production"
+    ports:
+      -  "7008:3306"
+    volumes:
+      - "/home/unitia/production/kannel1db:/var/lib/mysql"
+      - "/home/unitia/production/kannel1db/my.cnf:/etc/mysql/my.cnf"
+    environment:
+      - MYSQL_ROOT_PASSWORD=kannel
+      - TZ=Asia/Kolkata
   pinnaclkanneldb:
     image: "winnovature/mariadb:production"
     ports:
@@ -291,6 +314,7 @@ services:
       - /logs:/logs
     depends_on:
       - "unitiadb"
+      - "kannel1db"
     environment:
       - module=kannelconfig
       - TZ=Asia/Kolkata
@@ -340,4 +364,16 @@ services:
       - "redisqueue1"
     environment:
       - module=duplicate
+      - TZ=Asia/Kolkata
+  queuecheck:
+    image: "winnovature/unitia:production"
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/unitia/:/unitia
+      - /logs:/logs
+    depends_on:
+      - "kannel1"
+      - "kannel1db"  
+    environment:
+      - module=queuecheck
       - TZ=Asia/Kolkata
